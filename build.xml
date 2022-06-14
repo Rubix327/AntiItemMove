@@ -1,0 +1,27 @@
+<?xml version="1.0" ?>
+<project name="PluginTemplate" default="Build">
+
+	<xmlproperty file="pom.xml" prefix="pom" keeproot="false" />
+	<property name="server.path" value="${pom.properties.server.path}"/>
+	<property name="foundation.version" value="${pom.properties.foundation.version}"/>
+	<property name="project.version" value="${pom.version}"/>
+
+	<target name="init">
+		<buildnumber/>
+	</target>
+
+	<target name="Build">
+		<delete>
+			<fileset dir="${server.path}\plugins\" includes="${ant.project.name}*"/>
+		</delete>
+		<buildnumber/>
+		<jar jarfile="${server.path}\plugins\${ant.project.name}-${project.version}-b${build.number}.jar"
+			 basedir="./target/classes/" includes="**/*">
+
+			<zipgroupfileset dir="${user.home}/.m2/repository/com/github/Rubix327/Foundation/${foundation.version}/"
+							 includes="**/*${foundation.version}.jar"/>
+
+		</jar>
+	</target>
+
+</project> 

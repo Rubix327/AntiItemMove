@@ -1,0 +1,7 @@
+name: ${project.name}
+version: ${project.version}
+main: ${main.class}
+author: ${author}
+api-version: 1.13
+libraries: 
+  - org.openjdk.nashorn:nashorn-core:15.4
