@@ -1,5 +1,5 @@
 <?xml version="1.0" ?>
-<project name="PluginTemplate" default="Build">
+<project name="AntiItemMove" default="Build">
 
 	<xmlproperty file="pom.xml" prefix="pom" keeproot="false" />
 	<property name="server.path" value="${pom.properties.server.path}"/>
@@ -24,4 +24,4 @@
 		</jar>
 	</target>
 
-</project> 
+</project>
