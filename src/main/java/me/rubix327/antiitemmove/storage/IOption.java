@@ -1,10 +1,35 @@
 package me.rubix327.antiitemmove.storage;
 
+import org.mineacademy.fo.remain.CompMaterial;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+
 /**
  * Represents an option that can be passed as an element of each group in {@link Group}.
  * This may be {@link Group} itself (group referring on other groups) or {@link MoveOption}.
  */
 public interface IOption {
+
+    /**
+     * Add this option to the specified group.
+     * @param group the group
+     */
+    void add(Group group);
+
+    /**
+     * Remove this option from the specified group.
+     * @param group the group
+     */
+    void remove(Group group);
+
+    /**
+     * Get the display material of this IOption.
+     * @return CompMaterial
+     */
+    CompMaterial getMaterial();
 
     /**
      * Get the instance of Group or MoveOption by its name.<br>
@@ -28,18 +53,6 @@ public interface IOption {
     }
 
     /**
-     * Add this option to the specified group.
-     * @param group the group
-     */
-    void add(Group group);
-
-    /**
-     * Remove this option from the specified group.
-     * @param group the group
-     */
-    void remove(Group group);
-
-    /**
      * Get the option from its name (automatically uppercase).
      * If this option does not exist, returns null.
      * @param name the name
@@ -51,6 +64,16 @@ public interface IOption {
         } catch (IllegalArgumentException e){
             return null;
         }
+    }
+
+    /**
+     * Get all the instances of {@link Group Groups} and {@link MoveOption MoveOptions}.
+     */
+    static List<IOption> getAll(){
+        List<IOption> list = new ArrayList<>();
+        list.addAll(Arrays.stream(Group.values()).collect(Collectors.toList()));
+        list.addAll(Arrays.stream(MoveOption.values()).collect(Collectors.toList()));
+        return list;
     }
 
 }

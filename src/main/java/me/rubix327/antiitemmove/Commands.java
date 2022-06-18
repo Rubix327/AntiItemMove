@@ -1,8 +1,9 @@
 package me.rubix327.antiitemmove;
 
+import me.rubix327.antiitemmove.menu.*;
 import me.rubix327.antiitemmove.storage.*;
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.mineacademy.fo.Common;
 import org.mineacademy.fo.Logger;
@@ -10,7 +11,6 @@ import org.mineacademy.fo.Messenger;
 import org.mineacademy.fo.MinecraftVersion;
 import org.mineacademy.fo.command.SimpleCommand;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -23,20 +23,24 @@ public class Commands extends SimpleCommand {
 
     @Override
     protected void onCommand() {
-        String syntax = "&7Syntax: &e/aim <gui | save | get | removeGroup | help>";
-        Common.setTellPrefix("");
+        String syntax = "&7Syntax: &e/aim <gui | save | get | removeGroup | help | reload>";
+        Common.setTellPrefix("&8[&dAntiItemMove&8] ");
         checkConsole();
-        checkArgs(1, syntax);
 
-        if ("save".equalsIgnoreCase(args[0])){
-            ItemStack item = getPlayer().getInventory().getItemInHand();
+        if (args.length == 0){
+            openMainMenu(getPlayer());
+        }
+        else if ("gui".equalsIgnoreCase(args[0]) || "menu".equalsIgnoreCase(args[0])){
+            openMainMenu(getPlayer());
+        }
+        else if ("save".equalsIgnoreCase(args[0])){
+            ItemStack item = getPlayer().getInventory().getItemInHand().clone();
             if (item.getType() == Material.AIR) returnTell("You must hold an item to save it as restricted.");
 
-            ItemsStorage.getInstance().add(ItemsStorage.getStringFromItem(item));
+            item.setAmount(1);
+            ItemsStorage.getInstance().add(item);
             int id = ItemsStorage.getInstance().getMaxId();
-            BansStorage.getInstance().add(id, Group.DEFAULT.getOptionsAndGroups());
-
-            item.setItemMeta(Bukkit.getItemFactory().getItemMeta(Material.STONE));
+            BansStorage.getInstance().addOptions(id, Group.DEFAULT.getOptionsAndGroups());
 
             String name = getItemName(item);
             Messenger.success(getPlayer(), "&7You have successfully added &e" +
@@ -47,8 +51,8 @@ public class Commands extends SimpleCommand {
             int number = findNumber(1, "&7Item ID must be whole number.");
             ItemStack item = null;
             try {
-                item = ItemsStorage.getItemFromString(ItemsStorage.getInstance().getItems().get(number));
-            } catch (IOException | IllegalArgumentException e) {
+                item = ItemsStorage.getInstance().getItemsMap().get(number);
+            } catch (IllegalArgumentException e) {
                 returnTell("&cFailed to get the item from the file. Check that its encoded data is correct.");
             } catch (ClassCastException e){
                 returnTell("&cFailed to get the item from the file. Probably this item is from 1.13+ " +
@@ -91,12 +95,20 @@ public class Commands extends SimpleCommand {
                     "&7 &d/aim help &7- Open this page",
                     "&8" + Common.chatLineSmooth()
             );
-            Common.tell(getPlayer(), messages);
+            Common.tellNoPrefix(getPlayer(), messages);
+        }
+        else if ("reload".equalsIgnoreCase(args[0])){
+            AntiItemMoveMain.getInstance().loadFiles();
+            Common.tell(getPlayer(), "&dConfiguration reloaded!");
         }
         else{
             Messenger.error(getPlayer(), syntax);
         }
 
+    }
+
+    private void openMainMenu(Player player){
+        new MainMenu(player).display();
     }
 
     @Override

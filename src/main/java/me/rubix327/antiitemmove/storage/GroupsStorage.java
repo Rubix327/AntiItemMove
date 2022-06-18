@@ -22,6 +22,9 @@ public class GroupsStorage extends YamlConfig {
         save();
     }
 
+    /**
+     * Get data from groups.yml
+     */
     @Override
     protected void onLoad() {
         HashMap<Group, List<Group>> groups = new HashMap<>();
@@ -71,18 +74,26 @@ public class GroupsStorage extends YamlConfig {
         save();
     }
 
+    /**
+     * Save data to the file
+     */
     @Override
     protected void onSave() {
         this.set("Groups", Group.getUserAll());
     }
 
+    /**
+     * Add an IOption (a MoveOption or a Group) to the given group.
+     * @param group the group
+     * @param option the IOption
+     */
     public void add(Group group, IOption option){
         option.add(group);
         this.save();
     }
 
     /**
-     * Reset the default values of this group.
+     * Return this group to its default values.
      */
     public void reset(Group group){
         // TODO

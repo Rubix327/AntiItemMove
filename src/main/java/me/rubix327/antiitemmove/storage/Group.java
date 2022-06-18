@@ -1,10 +1,11 @@
 package me.rubix327.antiitemmove.storage;
 
 import com.google.common.annotations.Beta;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import org.jetbrains.annotations.Nullable;
-import org.mineacademy.fo.Logger;
+import org.mineacademy.fo.remain.CompMaterial;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -19,36 +20,34 @@ import java.util.stream.Stream;
  * referring to the items that it does contain.<br>
  * Groups recursion is not allowed - repeated groups will be removed.
  */
+@AllArgsConstructor
 public enum Group implements IOption {
-    ALL(Arrays.stream(MoveOption.values()).collect(Collectors.toList())),
-    CONTAINERS(toList(MoveOption.CHEST, MoveOption.ENDER_CHEST, MoveOption.SHULKER_BOX, MoveOption.BARREL)),
-    TOOLS(toList(MoveOption.DISPENSER, MoveOption.DROPPER, MoveOption.FURNACE, MoveOption.WORKBENCH, MoveOption.ENCHANTING,
+    ALL(Arrays.stream(MoveOption.values()).collect(Collectors.toList()), CompMaterial.DIAMOND_BLOCK, 10),
+    CONTAINERS(toList(MoveOption.CHEST, MoveOption.ENDER_CHEST, MoveOption.SHULKER_BOX, MoveOption.BARREL), CompMaterial.CHEST_MINECART, 1),
+    TOOL_BLOCKS(toList(MoveOption.DISPENSER, MoveOption.DROPPER, MoveOption.FURNACE, MoveOption.WORKBENCH, MoveOption.ENCHANTING,
             MoveOption.BREWING, MoveOption.ANVIL, MoveOption.SMITHING, MoveOption.BEACON, MoveOption.HOPPER,
             MoveOption.BLAST_FURNACE, MoveOption.LECTERN, MoveOption.SMOKER, MoveOption.LOOM, MoveOption.CARTOGRAPHY,
-            MoveOption.GRINDSTONE, MoveOption.STONECUTTER, MoveOption.COMPOSTER)),
+            MoveOption.GRINDSTONE, MoveOption.STONECUTTER, MoveOption.COMPOSTER), CompMaterial.CRAFTING_TABLE, 2),
     SAFE(toList(MoveOption.WORKBENCH, MoveOption.MERCHANT, MoveOption.ENDER_CHEST, MoveOption.CRAFTING, MoveOption.PLAYER,
-            MoveOption.CREATIVE, MoveOption.ENCHANTING)),
-    NOT_SAFE(getNotSafe()),
-    OTHER(toList(MoveOption.PLACE, MoveOption.DROP, MoveOption.DIE)),
-    DEFAULT(new ArrayList<>(), toList(Group.NOT_SAFE)),
-    CUSTOM_1(toList(MoveOption.DISPENSER, MoveOption.DROPPER, MoveOption.FURNACE), toList(Group.DEFAULT)),
-    CUSTOM_2(toList(MoveOption.LOOM, MoveOption.BREWING, MoveOption.ENCHANTING), toList(Group.CUSTOM_1)),
-    CUSTOM_3(toList(MoveOption.MERCHANT, MoveOption.ANVIL, MoveOption.BARREL), toList(Group.CUSTOM_2));
+            MoveOption.CREATIVE, MoveOption.ENCHANTING), CompMaterial.FIREWORK_STAR, 3),
+    NOT_SAFE(getNotSafe(), CompMaterial.FIRE_CHARGE, 4),
+    OTHER(toList(MoveOption.PLACE, MoveOption.DROP, MoveOption.ITEM_FRAME, MoveOption.DIE), CompMaterial.BLAZE_POWDER, 5),
+    DEFAULT(new ArrayList<>(), toList(Group.NOT_SAFE), CompMaterial.WHITE_WOOL, 6),
+    CUSTOM_1(toList(MoveOption.DISPENSER, MoveOption.DROPPER, MoveOption.FURNACE), toList(Group.DEFAULT), CompMaterial.LIGHT_BLUE_WOOL, 7),
+    CUSTOM_2(toList(MoveOption.LOOM, MoveOption.BREWING, MoveOption.ENCHANTING), toList(Group.CUSTOM_1), CompMaterial.MAGENTA_WOOL, 8),
+    CUSTOM_3(toList(MoveOption.MERCHANT, MoveOption.ANVIL, MoveOption.BARREL), toList(Group.CUSTOM_2), CompMaterial.YELLOW_WOOL, 9);
 
     @Getter @Setter
     private List<MoveOption> options;
     @Getter @Setter
     private List<Group> groups;
+    @Getter
+    private final CompMaterial material;
+    @Getter
+    private final int priority;
 
-    Group(List<MoveOption> options){
-        this.options = options;
-        this.groups = new ArrayList<>();
-    }
-
-    Group(List<MoveOption> options, List<Group> groups){
-        this.options = options;
-        this.groups = groups;
-        getOptionsStringList();
+    Group(List<MoveOption> options, CompMaterial material, int priority){
+        this(options, new ArrayList<>(), material, priority);
     }
 
     /**
@@ -103,7 +102,7 @@ public enum Group implements IOption {
      * Get the Group list of predefined groups.
      */
     public static List<Group> getPredefined(){
-        return Arrays.asList(ALL, CONTAINERS, TOOLS, SAFE, NOT_SAFE, OTHER);
+        return Arrays.asList(ALL, CONTAINERS, TOOL_BLOCKS, SAFE, NOT_SAFE, OTHER);
     }
 
     /**
@@ -129,10 +128,27 @@ public enum Group implements IOption {
      * @return options and groups
      */
     public List<String> getOptionsAndGroups(){
-        Logger.warning(this.toString());
         List<String> list = new ArrayList<>();
         list.addAll(getGroups().stream().map(Enum::toString).collect(Collectors.toList()));
         list.addAll(getOptions().stream().map(Enum::toString).collect(Collectors.toList()));
+        return list;
+    }
+
+    /**
+     * Get the display names of all the options and groups bound to this group.
+     * @return the names
+     */
+    public List<String> getAllDisplayNames(){
+        List<String> list = new ArrayList<>();
+        for (String s : getOptionsAndGroups()){
+            IOption option = IOption.getOrNull(s);
+            if (option instanceof MoveOption){
+                list.add(((MoveOption) option).getDisplayName());
+            }
+            else{
+                list.add(s);
+            }
+        }
         return list;
     }
 

@@ -20,7 +20,7 @@ public class AntiItemMoveMain extends SimplePlugin {
         loadFiles();
     }
 
-    private void loadFiles(){
+    public void loadFiles(){
         ItemsStorage.getInstance().init();
         BansStorage.getInstance().init();
         GroupsStorage.getInstance().init();
