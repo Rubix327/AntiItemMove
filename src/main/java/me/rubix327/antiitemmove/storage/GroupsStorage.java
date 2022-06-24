@@ -87,8 +87,8 @@ public class GroupsStorage extends YamlConfig {
      * @param group the group
      * @param option the IOption
      */
-    public void add(Group group, IOption option){
-        option.add(group);
+    public void addElement(Group group, IOption option){
+        option.addTo(group);
         this.save();
     }
 
@@ -96,7 +96,8 @@ public class GroupsStorage extends YamlConfig {
      * Return this group to its default values.
      */
     public void reset(Group group){
-        // TODO
+        group.reset();
+        this.save();
     }
 
     /**
@@ -112,10 +113,10 @@ public class GroupsStorage extends YamlConfig {
      * Remove the element from the groups or options of this group.
      */
     public void removeElement(Group group, IOption element) throws NullPointerException{
-        if (!group.getOptionsAndGroups().contains(element.toString())) {
+        if (!group.getIOptionsStringList().contains(element.toString())) {
             throw new NullPointerException("This group does not contain this option.");
         }
-        element.remove(group);
+        element.removeFrom(group);
         this.save();
     }
 

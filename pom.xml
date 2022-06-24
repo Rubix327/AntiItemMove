@@ -15,7 +15,8 @@
 		<main.class>me.rubix327.antiitemmove.AntiItemMoveMain</main.class>
 		<java.version>1.8</java.version>
 		<plugin.version>1.19-R0.1-SNAPSHOT</plugin.version>
-		<foundation.version>d686cc8c46</foundation.version>
+		<foundation.version>6.0.2.1</foundation.version>
+		<itemslangapi.version>1.0.2</itemslangapi.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<server.path>C:\MCServers\TestServer1.8</server.path>
 
@@ -42,6 +43,11 @@
 			<groupId>com.github.Rubix327</groupId>
 			<artifactId>Foundation</artifactId>
 			<version>${foundation.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.github.Rubix327</groupId>
+			<artifactId>ItemsLangAPI</artifactId>
+			<version>${itemslangapi.version}</version>
 		</dependency>
 	</dependencies>
 

@@ -42,12 +42,20 @@ public enum Group implements IOption {
     @Getter @Setter
     private List<Group> groups;
     @Getter
+    private final List<MoveOption> defaultOptions;
+    @Getter
+    private final List<Group> defaultGroups;
+    @Getter
     private final CompMaterial material;
     @Getter
     private final int priority;
 
     Group(List<MoveOption> options, CompMaterial material, int priority){
-        this(options, new ArrayList<>(), material, priority);
+        this(options, new ArrayList<>(), options, new ArrayList<>(), material, priority);
+    }
+
+    Group(List<MoveOption> options, List<Group> groups, CompMaterial material, int priority){
+        this(options, groups, options, groups, material, priority);
     }
 
     /**
@@ -84,6 +92,10 @@ public enum Group implements IOption {
 
     }
 
+    public static List<Group> getList(){
+        return Arrays.stream(values()).collect(Collectors.toList());
+    }
+
     /**
      * Get the string list containing all available groups.
      */
@@ -118,20 +130,28 @@ public enum Group implements IOption {
     public static HashMap<Group, List<String>> getUserAll(){
         HashMap<Group, List<String>> map = new HashMap<>();
         for (Group group : getUserDefined()){
-            map.put(group, group.getOptionsAndGroups());
+            map.put(group, group.getIOptionsStringList());
         }
         return map;
+    }
+
+    public List<IOption> getIOptions(){
+        List<IOption> list = new ArrayList<>();
+        list.addAll(this.getGroups());
+        list.addAll(this.getOptions());
+        return list;
     }
 
     /**
      * Get the combined list of IOptions inside this group.
      * @return options and groups
      */
-    public List<String> getOptionsAndGroups(){
-        List<String> list = new ArrayList<>();
-        list.addAll(getGroups().stream().map(Enum::toString).collect(Collectors.toList()));
-        list.addAll(getOptions().stream().map(Enum::toString).collect(Collectors.toList()));
-        return list;
+    public List<String> getIOptionsStringList(){
+        return getIOptions().stream().map(IOption::toString).collect(Collectors.toList());
+//        List<String> list = new ArrayList<>();
+//        list.addAll(getGroups().stream().map(Enum::toString).collect(Collectors.toList()));
+//        list.addAll(getOptions().stream().map(Enum::toString).collect(Collectors.toList()));
+//        return list;
     }
 
     /**
@@ -140,7 +160,7 @@ public enum Group implements IOption {
      */
     public List<String> getAllDisplayNames(){
         List<String> list = new ArrayList<>();
-        for (String s : getOptionsAndGroups()){
+        for (String s : getIOptionsStringList()){
             IOption option = IOption.getOrNull(s);
             if (option instanceof MoveOption){
                 list.add(((MoveOption) option).getDisplayName());
@@ -161,11 +181,27 @@ public enum Group implements IOption {
         }
     }
 
-    public void add(Group group){
+    /**
+     * Add this group to the given one.
+     * @param group the given group
+     */
+    public void addTo(Group group){
         group.getGroups().add(this);
     }
 
-    public void remove(Group group){
+    /**
+     * Remove this group from the given one.
+     * @param group the given group
+     */
+    public void removeFrom(Group group){
         group.getGroups().remove(this);
+    }
+
+    /**
+     * Reset this group's IOptions to the default values.
+     */
+    public void reset(){
+        this.setGroups(this.getDefaultGroups());
+        this.setOptions(this.getDefaultOptions());
     }
 }

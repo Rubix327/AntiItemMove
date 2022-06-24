@@ -1,10 +1,7 @@
 package me.rubix327.antiitemmove.menu;
 
 import me.rubix327.antiitemmove.Util;
-import me.rubix327.antiitemmove.storage.BansStorage;
-import me.rubix327.antiitemmove.storage.Group;
-import me.rubix327.antiitemmove.storage.IOption;
-import me.rubix327.antiitemmove.storage.ItemsStorage;
+import me.rubix327.antiitemmove.storage.*;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.inventory.ItemStack;
@@ -15,24 +12,27 @@ import org.mineacademy.fo.menu.model.ItemCreator;
 import org.mineacademy.fo.remain.CompMaterial;
 import org.mineacademy.fo.remain.CompSound;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
-public class ItemGroupsMenu extends AdvancedMenuPagged<Group> {
+public class GroupGroupsMenu extends AdvancedMenuPagged<Group> {
 
-    private final int id;
-    private final List<IOption> bannedOptions;
+    private final Group group;
+    private List<Group> bannedGroups;
     private final ItemStack item;
     private boolean showDescription = false;
+    private final boolean canEdit;
 
-    public ItemGroupsMenu(Player player, int id) {
+    public GroupGroupsMenu(Player player, Group group, boolean canEdit) {
         super(player);
-        this.id = id;
-        bannedOptions = BansStorage.getInstance().getBans(id);
-        item = ItemsStorage.getInstance().getItem(id);
+        this.group = group;
+        updateBannedOptions();
+        item = this.group.getMaterial().toItem();
+        this.canEdit = canEdit;
+    }
+
+    private void updateBannedOptions(){
+        this.bannedGroups = this.group.getGroups();
     }
 
     @Override
@@ -50,7 +50,7 @@ public class ItemGroupsMenu extends AdvancedMenuPagged<Group> {
         return new Button() {
             @Override
             public void onClickedInMenu(Player player, AdvancedMenu advancedMenu, ClickType clickType) {
-                new ItemOptionsMenu(player, id).display();
+                new GroupOptionsMenu(player, group, canEdit).display();
             }
 
             @Override
@@ -85,21 +85,35 @@ public class ItemGroupsMenu extends AdvancedMenuPagged<Group> {
         return new Button() {
             @Override
             public void onClickedInMenu(Player player, AdvancedMenu advancedMenu, ClickType clickType) {
-                if (clickType == ClickType.LEFT){
-                    getPlayer().getInventory().addItem(item);
-                } else if (clickType == ClickType.RIGHT){
-                    new RemoveItemConfirmMenu(player, id).display();
+                if (!canEdit) return;
+                if (clickType == ClickType.RIGHT){
+                    new ResetGroupConfirmMenu(player, group).display();
+                }
+            }
+
+            public String[] getLore(){
+                if (!GroupGroupsMenu.this.canEdit){
+                    return new String[]{
+                            "",
+                            " &8You're currently editing this group"
+                    };
+                }
+                else{
+                    return new String[]{
+                            "",
+                            " &8You're currently editing this group",
+                            "",
+                            " &8▶ &8Click RMB &8to &creset &8the group to the defaults"
+                    };
                 }
             }
 
             @Override
             public ItemStack getItem() {
                 return ItemCreator.of(item)
-                        .lore("",
-                                " &8You're currently editing this item (id: " + id + ")",
-                                "",
-                                " &8▶ &8Click LMB &8to &aget &8the item",
-                                " &8▶ &8Click RMB &8to &cremove &8the item from restricted")
+                        .name(Util.capitalizeString(group.toString()))
+                        .lore(getLore())
+                        .hideTags(true)
                         .make();
             }
         };
@@ -109,7 +123,7 @@ public class ItemGroupsMenu extends AdvancedMenuPagged<Group> {
         return new Button() {
             @Override
             public void onClickedInMenu(Player player, AdvancedMenu advancedMenu, ClickType clickType) {
-                new ItemsMenu(player).display();
+                new GroupsMenu(player).display();
             }
 
             @Override
@@ -127,33 +141,31 @@ public class ItemGroupsMenu extends AdvancedMenuPagged<Group> {
                 .sorted(Comparator.comparingInt(Group::getPriority)).collect(Collectors.toList());
     }
 
-    private List<String> getLore(Group group, String toggleLabel){
+    private List<String> getLore(Group group, boolean isSelected){
         List<String> lore = new ArrayList<>();
+        String toggleLabel = (isSelected ? "disable" : "enable");
 
-        if (group == Group.DEFAULT && !showDescription){
-            lore.addAll(Arrays.asList("",
-                    "This group will be replaced with its",
-                    "correspondent groups and options",
-                    "for this item after server reload",
-                    "or /aim reload."));
-        }
         if (showDescription){
             lore.add("");
             for (String s : group.getAllDisplayNames()){
                 lore.add("&l- &7" + Util.capitalizeString(s));
             }
         }
-        lore.addAll(Arrays.asList("", "&7▶ Click to " + toggleLabel));
+        if (canEdit) {
+            lore.addAll(Arrays.asList("", "&7▶ Click to " + toggleLabel));
+        }
+        else{
+            lore.addAll(Arrays.asList("", isSelected ? "&7✔ Enabled" : "&7✕ Disabled"));
+        }
         return lore;
     }
 
     @Override
     protected ItemStack convertToItemStack(Group group) {
-        boolean isSelected = bannedOptions.contains(group);
-        String toggleLabel = (isSelected ? "disable" : "enable");
+        boolean isSelected = bannedGroups.contains(group);
         return ItemCreator.of(group.getMaterial())
                 .name(Util.capitalizeString(group.toString()))
-                .lore(getLore(group, toggleLabel))
+                .lore(getLore(group, isSelected))
                 .glow(isSelected)
                 .hideTags(true)
                 .make();
@@ -161,16 +173,32 @@ public class ItemGroupsMenu extends AdvancedMenuPagged<Group> {
 
     @Override
     protected void onElementClick(Player player, Group object, int slot, ClickType clickType) {
-        IOption option = this.getElementsSlots().get(slot);
-        if (bannedOptions.contains(option)){
-            BansStorage.getInstance().removeOptions(id, option);
+        if (!checkCanEdit()) return;
+        Group group = Group.getOrNull(this.getElementsSlots().get(slot).toString());
+        if (group == null) return;
+        if (group == this.group){
+            CompSound.VILLAGER_NO.play(player, 0.5F, 0.7F);
+            return;
+        }
+        player.sendMessage(bannedGroups.toString());
+        if (bannedGroups.contains(group)){
+            GroupsStorage.getInstance().removeElement(this.group, group);
             CompSound.NOTE_PLING.play(player, 0.5F, 0.6F);
         } else {
-            BansStorage.getInstance().addOptions(id, option);
+            GroupsStorage.getInstance().addElement(this.group, group);
             CompSound.NOTE_PLING.play(player, 0.5F, 1.19F);
         }
-        BansStorage.getInstance().updateCachedBansFor(item);
+        updateBannedOptions();
         refreshMenu();
+    }
+
+    protected boolean checkCanEdit(){
+        if (!this.canEdit){
+            CompSound.VILLAGER_NO.play(getPlayer(), 0.5F, 0.7F);
+            animateTitle("&4Can't edit predefined group!");
+            return false;
+        }
+        return true;
     }
 
 }

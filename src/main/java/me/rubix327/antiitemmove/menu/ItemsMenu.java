@@ -26,10 +26,22 @@ public class ItemsMenu extends AdvancedMenuPagged<IDItemStack> {
     @Override
     protected void setup() {
         setTitle("Restricted Items");
-        setSize(54);
+        setSize(getElements().size() == 0 ? 9 * 5 : 9 * 6);
         setParent(MainMenu.class);
-        setLockedSlots(LockedSlotsFigure.BOUNDS_9X6);
-        addButton(49, getReturnBackButton(getReturnItem()));
+        setLockedSlots(LockedSlotsFigure.Raw.BOUNDS, getSize());
+        addButton(getElements().size() == 0 ? 40 : 49, getReturnBackButton(getReturnItem()));
+        if (getElements().size() == 0){
+            addItem(22, getEmptyItem());
+        }
+    }
+
+    private ItemStack getEmptyItem(){
+        return ItemCreator.of(CompMaterial.CLOCK)
+                .name("It's cold and empty here...")
+                .lore("", "&7You haven't added any item yet.",
+                        "&7To do it, type '/aim save' while holding",
+                        "&7an item you want to restrict in hand.")
+                .make();
     }
 
     @Override

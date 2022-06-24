@@ -13,7 +13,6 @@ import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.inventory.ItemStack;
-import org.mineacademy.fo.Logger;
 import org.mineacademy.fo.remain.CompMaterial;
 
 import java.util.*;
@@ -28,9 +27,12 @@ public class PlayerListener implements Listener {
 
     @EventHandler
     public void onItemDrop(PlayerDropItemEvent event){
+        ItemStack item = event.getItemDrop().getItemStack();
+        item = item.clone();
+        item.setAmount(1);
         try{
-            List<String> bans = BansStorage.getInstance().getCachedBans().get(event.getItemDrop().getItemStack());
-            if (bans.contains(Group.ALL.toString()) || bans.contains(MoveOption.DROP.toString())) event.setCancelled(true);
+            List<IOption> bans = BansStorage.getInstance().getCachedBans().get(item);
+            if (bans.contains(Group.ALL) || bans.contains(MoveOption.DROP)) event.setCancelled(true);
         } catch (NullPointerException ignored){ }
     }
 
@@ -38,11 +40,14 @@ public class PlayerListener implements Listener {
     public void onItemMove(InventoryClickEvent event){
         ItemStack item = event.getCurrentItem();
         if (item == null) return;
+        item = item.clone();
+        item.setAmount(1);
 
         try{
-            List<String> bans = BansStorage.getInstance().getCachedBans().get(item);
-            Logger.info(bans.contains(Group.ALL.toString()) || bans.contains(event.getInventory().getType().toString()));
-            if (bans.contains(Group.ALL.toString()) || bans.contains(event.getInventory().getType().toString())) event.setCancelled(true);
+            List<IOption> bans = BansStorage.getInstance().getCachedBans().get(item);
+            if (bans.contains(Group.ALL) || bans.contains(IOption.getOrNull(event.getInventory().getType().toString()))) {
+                event.setCancelled(true);
+            }
         } catch (NullPointerException ignored){ }
     }
 
@@ -51,10 +56,12 @@ public class PlayerListener implements Listener {
         ItemStack item = event.getItem();
         if (!event.hasBlock()) return;
         if (item == null) return;
+        item = item.clone();
+        item.setAmount(1);
 
         try{
-            List<String> bans = BansStorage.getInstance().getCachedBans().get(item);
-            if (bans.contains(Group.ALL.toString()) || bans.contains(MoveOption.PLACE.toString())) event.setCancelled(true);
+            List<IOption> bans = BansStorage.getInstance().getCachedBans().get(item);
+            if (bans.contains(Group.ALL) || bans.contains(MoveOption.PLACE)) event.setCancelled(true);
         } catch (NullPointerException ignored){ }
     }
 
@@ -62,9 +69,11 @@ public class PlayerListener implements Listener {
     public void onItemFramePlace(PlayerInteractEntityEvent event){
         ItemStack item = event.getPlayer().getItemInHand();
         if (CompMaterial.isAir(item)) return;
+        item = item.clone();
+        item.setAmount(1);
 
-        List<String> bans = BansStorage.getInstance().getCachedBans().get(item);
-        if (bans.contains(Group.ALL.toString()) || bans.contains(MoveOption.ITEM_FRAME.toString())){
+        List<IOption> bans = BansStorage.getInstance().getCachedBans().get(item);
+        if (bans.contains(Group.ALL) || bans.contains(MoveOption.ITEM_FRAME)){
             if (event.getRightClicked() instanceof ItemFrame){
                 event.setCancelled(true);
             }
@@ -77,8 +86,8 @@ public class PlayerListener implements Listener {
         for (ItemStack itemStack : ItemsStorage.getInstance().getItemsMap().values()){
             for (ItemStack drop : event.getDrops()){
                 if (drop.isSimilar(itemStack)){
-                    List<String> bans = BansStorage.getInstance().getCachedBans().get(itemStack);
-                    if (!bans.contains(MoveOption.DIE.toString())) continue;
+                    List<IOption> bans = BansStorage.getInstance().getCachedBans().get(itemStack);
+                    if (!bans.contains(MoveOption.DIE)) continue;
                     if (droppedItems.containsKey(event.getEntity().getUniqueId())){
                         droppedItems.get(event.getEntity().getUniqueId()).add(drop.clone());
                     }

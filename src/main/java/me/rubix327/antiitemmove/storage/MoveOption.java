@@ -74,11 +74,11 @@ public enum MoveOption implements IOption{
         return Arrays.stream(values()).map(Enum::toString).collect(Collectors.toList());
     }
 
-    public void add(Group group){
+    public void addTo(Group group){
         group.getOptions().add(this);
     }
 
-    public void remove(Group group){
+    public void removeFrom(Group group){
         group.getOptions().remove(this);
     }
 

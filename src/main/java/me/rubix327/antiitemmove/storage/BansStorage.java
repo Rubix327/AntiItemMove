@@ -18,9 +18,15 @@ public class BansStorage extends YamlConfig {
     @Getter
     private static final BansStorage instance = new BansStorage();
 
-    private final LinkedHashMap<Integer, List<String>> bans = new LinkedHashMap<>();
+    /**
+     * Contains all banned MoveOptions and Groups of an item.
+     */
+    private final LinkedHashMap<Integer, List<IOption>> bans = new LinkedHashMap<>();
+    /**
+     * Contains only banned MoveOptions of an item. Groups are already replaced with MoveOptions here.
+     */
     @Getter
-    private final HashMap<ItemStack, List<String>> cachedBans = new HashMap<>();
+    private final HashMap<ItemStack, List<IOption>> cachedBans = new HashMap<>();
 
     public void init(){
         setHeader(Settings.BANS_DESCRIPTION);
@@ -35,13 +41,13 @@ public class BansStorage extends YamlConfig {
         /*
         Get data from bans.yml
          */
-        LinkedHashMap<Integer, List<String>> map = new LinkedHashMap<>();
+        LinkedHashMap<Integer, List<IOption>> map = new LinkedHashMap<>();
         for (String key : getKeys(true)){
             String name = key.replace("Bans.", "").replace("Bans", "");
             if (name.isEmpty()) continue;
 
             int id = Integer.parseInt(name);
-            List<String> elements = getStringList(key);
+            List<IOption> elements = getStringList(key).stream().map(IOption::getOrNull).collect(Collectors.toList());
             map.put(id, elements);
         }
         this.bans.putAll(map);
@@ -49,10 +55,10 @@ public class BansStorage extends YamlConfig {
         /*
         If elements contains Default group then replace it with its options and groups.
          */
-        for (List<String> list : bans.values()){
-            if (list.contains(Group.DEFAULT.toString())){
-                list.remove(Group.DEFAULT.toString());
-                list.addAll(Group.DEFAULT.getOptionsAndGroups());
+        for (List<IOption> list : bans.values()){
+            if (list.contains(Group.DEFAULT)){
+                list.remove(Group.DEFAULT);
+                list.addAll(Group.DEFAULT.getIOptions());
             }
         }
 
@@ -67,7 +73,7 @@ public class BansStorage extends YamlConfig {
      * Fully refresh the {@link #cachedBans}.
      */
     private void updateCachedBans(){
-        for (Map.Entry<Integer, List<String>> entry : bans.entrySet()){
+        for (Map.Entry<Integer, List<IOption>> entry : bans.entrySet()){
             ItemStack item = ItemsStorage.getInstance().getItem(entry.getKey());
             if (item == null) continue;
             updateCachedBansFor(item);
@@ -95,7 +101,7 @@ public class BansStorage extends YamlConfig {
      * @param id the id
      * @param options the IOptions to add
      */
-    public void addOptions(int id, List<String> options){
+    public void addOptions(int id, List<IOption> options){
         if (this.bans.containsKey(id)){
             this.bans.get(id).addAll(options);
 
@@ -113,7 +119,7 @@ public class BansStorage extends YamlConfig {
      * @param id the id
      * @param options the IOptions to add
      */
-    public void addOptions(int id, String... options){
+    public void addOptions(int id, IOption... options){
         addOptions(id, Arrays.stream(options).collect(Collectors.toList()));
     }
 
@@ -122,8 +128,8 @@ public class BansStorage extends YamlConfig {
      * @param id the id
      * @param options the IOptions to remove
      */
-    public void removeOptions(int id, String... options){
-        List<String> invs = Arrays.stream(options).collect(Collectors.toList());
+    public void removeOptions(int id, IOption... options){
+        List<IOption> invs = Arrays.stream(options).collect(Collectors.toList());
         if (this.bans.containsKey(id)){
             this.bans.get(id).removeAll(invs);
         }
@@ -137,6 +143,7 @@ public class BansStorage extends YamlConfig {
      */
     public void remove(int id){
         this.bans.remove(id);
+        updateCachedBans();
         this.save();
     }
 
@@ -147,7 +154,7 @@ public class BansStorage extends YamlConfig {
      * @return the IOptions of the item
      */
     @Nullable
-    public List<String> getBans(int id){
+    public List<IOption> getBans(int id){
         return bans.get(id);
     }
 
@@ -158,14 +165,14 @@ public class BansStorage extends YamlConfig {
      * @return the MoveOptions
      * @throws NullPointerException if the given item is not restricted or has no bans associated.
      */
-    private List<String> getReplacedBans(ItemStack item) throws NullPointerException {
+    private List<IOption> getReplacedBans(ItemStack item) throws NullPointerException {
         Integer itemKey = ItemsStorage.getInstance().getKey(item);
         if (itemKey == null) throw new NullPointerException("This item is not restricted.");
 
-        List<String> bans = BansStorage.getInstance().getBans(itemKey);
+        List<IOption> bans = BansStorage.getInstance().getBans(itemKey);
         if (bans == null) throw new NullPointerException("This item has no bans associated.");
         if (bans.isEmpty()) return new ArrayList<>();
-        bans.replaceAll(String::toUpperCase);
+//        bans.replaceAll(String::toUpperCase);
         bans = new ArrayList<>(replaceToOptions(new HashSet<>(bans)));
 
         return bans;
@@ -176,28 +183,28 @@ public class BansStorage extends YamlConfig {
      * Example: CONTAINERS -> "CHEST", "ENDER_CHEST", "SHULKER_BOX", "BARREL".<br>
      * Values cannot be repeated.
      */
-    private HashSet<String> replaceToOptions(HashSet<String> bannedOptions){
+    private HashSet<IOption> replaceToOptions(HashSet<IOption> bannedOptions){
         for (Group group : Group.getUserDefined()){
-            if (!bannedOptions.contains(group.toString())) continue;
-            for (String element : group.getOptionsAndGroups()){
+            if (!bannedOptions.contains(group)) continue;
+            for (String element : group.getIOptionsStringList()){
                 if (Group.getUserDefinedString().contains(element)) {
-                    if (Group.valueOf(element).getOptionsAndGroups().contains(group.toString())){
+                    if (Group.valueOf(element).getIOptionsStringList().contains(group.toString())){
                         Logger.warning("An error occurred when moving an item. Groups " + group + " and " + element
                                 + " are referring to each other. Key " + element + " in group " + group + " has been removed.");
                         GroupsStorage.getInstance().removeElement(group, IOption.valueOf(element));
-                        return new HashSet<>(Collections.singletonList(Group.ALL.toString()));
+                        return new HashSet<>(Collections.singletonList(Group.ALL));
                     }
                 }
             }
         }
 
-        HashSet<String> set = new HashSet<>(bannedOptions);
-        for (String current : bannedOptions){
-            if (current.equals(Group.ALL.toString())) continue;
-            for (String predefined : Group.getStringList()){
+        HashSet<IOption> set = new HashSet<>(bannedOptions);
+        for (IOption current : bannedOptions){
+            if (current.equals(Group.ALL)) continue;
+            for (Group predefined : Group.getList()){
                 if (current.equals(predefined)){
                     set.remove(predefined);
-                    set.addAll(Group.valueOf(predefined.toUpperCase()).getOptionsAndGroups());
+                    set.addAll(predefined.getIOptions());
                     set = replaceToOptions(set);
                 }
             }

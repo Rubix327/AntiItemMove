@@ -17,13 +17,13 @@ public interface IOption {
      * Add this option to the specified group.
      * @param group the group
      */
-    void add(Group group);
+    void addTo(Group group);
 
     /**
      * Remove this option from the specified group.
      * @param group the group
      */
-    void remove(Group group);
+    void removeFrom(Group group);
 
     /**
      * Get the display material of this IOption.

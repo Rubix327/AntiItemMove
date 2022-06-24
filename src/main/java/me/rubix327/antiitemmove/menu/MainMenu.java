@@ -17,18 +17,17 @@ public class MainMenu extends AdvancedMenu {
 
     @Override
     protected void setup() {
-        setTitle("&lAntiItemMove Main Menu");
+        setTitle("AntiItemMove Main Menu");
         setSize(27);
-//        setLockedSlots(LockedSlotsFigure.BOUNDS_9X3);
         addButton(11, getMenuButton(ItemsMenu.class,
                 ItemCreator.of(CompMaterial.GRASS_BLOCK)
                         .name(" ")
                         .lore("&7 ▶ &dRestricted Items ", "         &8&m&l----")
                         .make()));
-        addButton(13, getMenuButton(ItemGroupsMenu.class,
-                ItemCreator.of(CompMaterial.REDSTONE_BLOCK)
+        addButton(13, getMenuButton(GroupsMenu.class,
+                ItemCreator.of(CompMaterial.HAY_BLOCK)
                         .name(" ")
-                        .lore("&7 ▶ &bGroups ", "    &8&m&l---")
+                        .lore("&7 ▶ &bGroups ", "     &8&m&l--")
                         .make()));
         addButton(15, getReloadButton());
         setTitleAnimationDurationTicks(30);
@@ -36,15 +35,23 @@ public class MainMenu extends AdvancedMenu {
 
     private Button getReloadButton(){
         return new Button() {
+            private ItemStack item = ItemCreator.of(CompMaterial.CLOCK).name(" ").lore("&7 ▶ &aReload the plugin ", "          &8&m&l----").make();
             @Override
             public void onClickedInMenu(Player player, AdvancedMenu advancedMenu, ClickType clickType) {
                 Common.dispatchCommandAsPlayer(player, "aim reload");
                 animateTitle("&0Plugin reloaded!");
+                item = ItemCreator.of(CompMaterial.LIME_WOOL).name("&aPlugin reloaded!").make();
+                refreshMenu();
+                Common.runLater(30, () -> {
+                    item = ItemCreator.of(CompMaterial.CLOCK).name(" ").lore("&7 ▶ &aReload the plugin ", "          &8&m&l----").make();
+                    refreshMenu();
+                });
             }
 
             @Override
             public ItemStack getItem() {
-                return ItemCreator.of(CompMaterial.CLOCK).name(" ").lore("&7 ▶ &aReload the plugin ", "    &8&m&l---").make();
+//                return ItemCreator.of(CompMaterial.CLOCK).name(" ").lore("&7 ▶ &aReload the plugin ", "    &8&m&l---").make();
+                return item;
             }
         };
     }

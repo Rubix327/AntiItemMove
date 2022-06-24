@@ -3,7 +3,7 @@ package me.rubix327.antiitemmove;
 public class Util {
 
     public static String capitalizeString(String string) {
-        char[] chars = string.toLowerCase().replace("_", "").toCharArray();
+        char[] chars = string.toLowerCase().replace("_", " ").toCharArray();
         boolean found = false;
         for (int i = 0; i < chars.length; i++) {
             if (!found && Character.isLetter(chars[i])) {
