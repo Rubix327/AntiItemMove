@@ -2,5 +2,6 @@ name: ${project.name}
 version: ${project.version}
 main: ${main.class}
 author: ${author}
-libraries: 
-  - org.openjdk.nashorn:nashorn-core:15.4
+softdepend:
+  - ItemsLangApi
+api-version: 1.13

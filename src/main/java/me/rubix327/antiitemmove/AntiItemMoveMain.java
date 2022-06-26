@@ -21,6 +21,7 @@ public class AntiItemMoveMain extends SimplePlugin {
         instance = this;
 
         SimpleSettings.HIDE_INCOMPATIBILITY_WARNINGS = true;
+        SimpleSettings.HIDE_NASHORN_WARNINGS = true;
         Common.setLogPrefix("[AntiItemMove]");
         registerCommand(new Commands());
         registerEvents(new PlayerListener());

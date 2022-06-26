@@ -24,12 +24,22 @@ public class PlayerListener implements Listener {
      * This map only stores data between player death and respawn.
      */
     private static final HashMap<UUID, List<ItemStack>> droppedItems = new HashMap<>();
+    private static final String optionPerm = "antiitemmove.bypass.option.";
+    private static final String itemPerm = "antiitemmove.bypass.item.";
 
     @EventHandler
     public void onItemDrop(PlayerDropItemEvent event){
         ItemStack item = event.getItemDrop().getItemStack();
         item = item.clone();
         item.setAmount(1);
+
+        Integer itemId = ItemsStorage.getInstance().getKey(item);
+        if (itemId == null || event.getPlayer().hasPermission(optionPerm + "drop")
+                || event.getPlayer().hasPermission(itemPerm + itemId + ".drop")
+                ){
+            return;
+        }
+
         try{
             List<IOption> bans = BansStorage.getInstance().getCachedBans().get(item);
             if (bans.contains(Group.ALL) || bans.contains(MoveOption.DROP)) event.setCancelled(true);
@@ -42,10 +52,17 @@ public class PlayerListener implements Listener {
         if (item == null) return;
         item = item.clone();
         item.setAmount(1);
+        String inventory = event.getInventory().getType().toString();
+
+        Integer itemId = ItemsStorage.getInstance().getKey(item);
+        if (itemId == null || event.getWhoClicked().hasPermission(optionPerm + inventory)
+                || event.getWhoClicked().hasPermission(itemPerm + itemId + "." + inventory)){
+            return;
+        }
 
         try{
             List<IOption> bans = BansStorage.getInstance().getCachedBans().get(item);
-            if (bans.contains(Group.ALL) || bans.contains(IOption.getOrNull(event.getInventory().getType().toString()))) {
+            if (bans.contains(Group.ALL) || bans.contains(IOption.getOrNull(inventory))) {
                 event.setCancelled(true);
             }
         } catch (NullPointerException ignored){ }
@@ -59,6 +76,12 @@ public class PlayerListener implements Listener {
         item = item.clone();
         item.setAmount(1);
 
+        Integer itemId = ItemsStorage.getInstance().getKey(item);
+        if (itemId == null || event.getPlayer().hasPermission(optionPerm + "place")
+                || event.getPlayer().hasPermission(itemPerm + itemId + ".place")){
+            return;
+        }
+
         try{
             List<IOption> bans = BansStorage.getInstance().getCachedBans().get(item);
             if (bans.contains(Group.ALL) || bans.contains(MoveOption.PLACE)) event.setCancelled(true);
@@ -71,6 +94,12 @@ public class PlayerListener implements Listener {
         if (CompMaterial.isAir(item)) return;
         item = item.clone();
         item.setAmount(1);
+
+        Integer itemId = ItemsStorage.getInstance().getKey(item);
+        if (itemId == null || event.getPlayer().hasPermission(optionPerm + "item_frame")
+                || event.getPlayer().hasPermission(itemPerm + itemId + ".item_frame")){
+            return;
+        }
 
         List<IOption> bans = BansStorage.getInstance().getCachedBans().get(item);
         if (bans.contains(Group.ALL) || bans.contains(MoveOption.ITEM_FRAME)){
@@ -88,6 +117,13 @@ public class PlayerListener implements Listener {
                 if (drop.isSimilar(itemStack)){
                     List<IOption> bans = BansStorage.getInstance().getCachedBans().get(itemStack);
                     if (!bans.contains(MoveOption.DIE)) continue;
+
+                    Integer itemId = ItemsStorage.getInstance().getKey(itemStack);
+                    if (itemId == null || event.getEntity().hasPermission(optionPerm + "die")
+                            || event.getEntity().hasPermission(itemPerm + itemId + ".die")){
+                        return;
+                    }
+
                     if (droppedItems.containsKey(event.getEntity().getUniqueId())){
                         droppedItems.get(event.getEntity().getUniqueId()).add(drop.clone());
                     }

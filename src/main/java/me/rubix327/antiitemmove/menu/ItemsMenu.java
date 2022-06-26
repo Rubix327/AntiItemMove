@@ -33,6 +33,7 @@ public class ItemsMenu extends AdvancedMenuPagged<IDItemStack> {
         if (getElements().size() == 0){
             addItem(22, getEmptyItem());
         }
+        setPreviousButtonItem(ItemCreator.of(CompMaterial.TIPPED_ARROW).name("&7Previous page").make());
     }
 
     private ItemStack getEmptyItem(){
