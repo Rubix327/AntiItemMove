@@ -172,7 +172,6 @@ public class BansStorage extends YamlConfig {
         List<IOption> bans = BansStorage.getInstance().getBans(itemKey);
         if (bans == null) throw new NullPointerException("This item has no bans associated.");
         if (bans.isEmpty()) return new ArrayList<>();
-//        bans.replaceAll(String::toUpperCase);
         bans = new ArrayList<>(replaceToOptions(new HashSet<>(bans)));
 
         return bans;
@@ -200,9 +199,9 @@ public class BansStorage extends YamlConfig {
 
         HashSet<IOption> set = new HashSet<>(bannedOptions);
         for (IOption current : bannedOptions){
-            if (current.equals(Group.ALL)) continue;
+            if (Group.ALL.equals(current)) continue;
             for (Group predefined : Group.getList()){
-                if (current.equals(predefined)){
+                if (predefined.equals(current)){
                     set.remove(predefined);
                     set.addAll(predefined.getIOptions());
                     set = replaceToOptions(set);

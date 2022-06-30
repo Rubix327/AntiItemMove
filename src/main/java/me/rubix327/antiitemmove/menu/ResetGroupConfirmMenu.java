@@ -13,7 +13,7 @@ import org.mineacademy.fo.menu.model.ItemCreator;
 import org.mineacademy.fo.remain.CompMaterial;
 import org.mineacademy.fo.remain.CompSound;
 
-public class ResetGroupConfirmMenu extends AdvancedMenu {
+public class ResetGroupConfirmMenu extends MenuInterlayer {
 
     private final Group group;
 

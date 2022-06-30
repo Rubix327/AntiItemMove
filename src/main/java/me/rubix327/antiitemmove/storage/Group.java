@@ -28,8 +28,8 @@ public enum Group implements IOption {
             MoveOption.BREWING, MoveOption.ANVIL, MoveOption.SMITHING, MoveOption.BEACON, MoveOption.HOPPER,
             MoveOption.BLAST_FURNACE, MoveOption.LECTERN, MoveOption.SMOKER, MoveOption.LOOM, MoveOption.CARTOGRAPHY,
             MoveOption.GRINDSTONE, MoveOption.STONECUTTER, MoveOption.COMPOSTER), CompMaterial.CRAFTING_TABLE, 2),
-    SAFE(toList(MoveOption.WORKBENCH, MoveOption.MERCHANT, MoveOption.ENDER_CHEST, MoveOption.CRAFTING, MoveOption.PLAYER,
-            MoveOption.CREATIVE, MoveOption.ENCHANTING), CompMaterial.FIREWORK_STAR, 3),
+    SAFE(toList(MoveOption.WORKBENCH, MoveOption.MERCHANT, MoveOption.ENDER_CHEST, MoveOption.PLAYER_INVENTORY,
+            MoveOption.ENCHANTING), CompMaterial.FIREWORK_STAR, 3),
     NOT_SAFE(getNotSafe(), CompMaterial.FIRE_CHARGE, 4),
     OTHER(toList(MoveOption.PLACE, MoveOption.DROP, MoveOption.ITEM_FRAME, MoveOption.DIE), CompMaterial.BLAZE_POWDER, 5),
     DEFAULT(new ArrayList<>(), toList(Group.NOT_SAFE), CompMaterial.WHITE_WOOL, 6),
@@ -148,10 +148,6 @@ public enum Group implements IOption {
      */
     public List<String> getIOptionsStringList(){
         return getIOptions().stream().map(IOption::toString).collect(Collectors.toList());
-//        List<String> list = new ArrayList<>();
-//        list.addAll(getGroups().stream().map(Enum::toString).collect(Collectors.toList()));
-//        list.addAll(getOptions().stream().map(Enum::toString).collect(Collectors.toList()));
-//        return list;
     }
 
     /**

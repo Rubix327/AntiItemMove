@@ -6,7 +6,7 @@
 	<groupId>me.rubix327</groupId>
 	<artifactId>antiitemmove</artifactId>
 	<name>AntiItemMove</name>
-	<version>1.0.2</version>
+	<version>1.0.3</version>
 	<packaging>jar</packaging>
 
 	<properties>
@@ -16,9 +16,9 @@
 		<java.version>1.8</java.version>
 		<plugin.version>1.19-R0.1-SNAPSHOT</plugin.version>
 		<foundation.version>6.0.2.2</foundation.version>
-		<itemslangapi.version>1.0.2</itemslangapi.version>
+		<itemslangapi.version>558db44345</itemslangapi.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<server.path>C:\MCServers\TestServer1.8</server.path>
+		<server.path>C:\MCServers\TestServer1.19</server.path>
 
 	</properties>
 

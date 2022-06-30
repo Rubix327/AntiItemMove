@@ -1,12 +1,16 @@
 package me.rubix327.antiitemmove.menu;
 
+import me.rubix327.antiitemmove.Settings;
 import me.rubix327.antiitemmove.Util;
-import me.rubix327.antiitemmove.storage.*;
+import me.rubix327.antiitemmove.storage.Group;
+import me.rubix327.antiitemmove.storage.GroupsStorage;
+import me.rubix327.antiitemmove.storage.IOption;
+import me.rubix327.antiitemmove.storage.MoveOption;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.inventory.ItemStack;
+import org.mineacademy.fo.Common;
 import org.mineacademy.fo.menu.AdvancedMenu;
-import org.mineacademy.fo.menu.AdvancedMenuPagged;
 import org.mineacademy.fo.menu.button.Button;
 import org.mineacademy.fo.menu.model.ItemCreator;
 import org.mineacademy.fo.remain.CompMaterial;
@@ -16,7 +20,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class GroupOptionsMenu extends AdvancedMenuPagged<MoveOption> {
+public class GroupOptionsMenu extends MenuPaggedInterlayer<MoveOption> {
 
     private final Group group;
     private List<IOption> includedOptions;
@@ -35,9 +39,10 @@ public class GroupOptionsMenu extends AdvancedMenuPagged<MoveOption> {
 
     @Override
     protected void setup() {
+        Common.setTellPrefix(Settings.PREFIX);
         setTitle("Group Options");
         setSize(54);
-        setLockedSlots(0, 8, 9, 17, 18, 26, 27, 35, 36, 37, 39, 40, 41, 43, 44, 46, 47, 48, 50, 51, 52);
+        setLockedSlots(0, 8, 9, 17, 18, 26, 27, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 46, 47, 48, 50, 51, 52);
         addButton(45, getGroupsMenuButton());
         addButton(49, getItemButton());
         addButton(53, getSaveExitButton());
@@ -133,6 +138,10 @@ public class GroupOptionsMenu extends AdvancedMenuPagged<MoveOption> {
 
     @Override
     protected void onElementClick(Player player, MoveOption object, int slot, ClickType clickType) {
+        if (!Util.hasPermissionMenu(player, Settings.Permissions.GUI_EDIT_GROUPS)) {
+            showNoPermission(slot);
+            return;
+        }
         if (!checkCanEdit()) return;
         IOption option = this.getElementsSlots().get(slot);
         if (includedOptions.contains(option)){
@@ -149,7 +158,7 @@ public class GroupOptionsMenu extends AdvancedMenuPagged<MoveOption> {
     protected boolean checkCanEdit(){
         if (!this.canEdit){
             CompSound.VILLAGER_NO.play(getPlayer(), 0.5F, 0.7F);
-            animateTitle("&4Can't edit predefined group!");
+            Common.tell(getPlayer(), "&cCan't edit predefined group!");
             return false;
         }
         return true;

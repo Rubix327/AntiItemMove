@@ -1,6 +1,7 @@
 package me.rubix327.antiitemmove;
 
 import me.rubix327.antiitemmove.storage.*;
+import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.entity.ItemFrame;
 import org.bukkit.entity.Player;
@@ -24,8 +25,6 @@ public class PlayerListener implements Listener {
      * This map only stores data between player death and respawn.
      */
     private static final HashMap<UUID, List<ItemStack>> droppedItems = new HashMap<>();
-    private static final String optionPerm = "antiitemmove.bypass.option.";
-    private static final String itemPerm = "antiitemmove.bypass.item.";
 
     @EventHandler
     public void onItemDrop(PlayerDropItemEvent event){
@@ -34,9 +33,9 @@ public class PlayerListener implements Listener {
         item.setAmount(1);
 
         Integer itemId = ItemsStorage.getInstance().getKey(item);
-        if (itemId == null || event.getPlayer().hasPermission(optionPerm + "drop")
-                || event.getPlayer().hasPermission(itemPerm + itemId + ".drop")
-                ){
+        if (itemId == null || event.getPlayer().hasPermission(Settings.Permissions.BYPASS_OPTION.replace("$option", "drop"))
+                || event.getPlayer().hasPermission(Settings.Permissions.BYPASS_ITEM_ID_OPTION.replace("$id", String.valueOf(itemId))
+                .replace("$option", "drop"))){
             return;
         }
 
@@ -55,13 +54,21 @@ public class PlayerListener implements Listener {
         String inventory = event.getInventory().getType().toString();
 
         Integer itemId = ItemsStorage.getInstance().getKey(item);
-        if (itemId == null || event.getWhoClicked().hasPermission(optionPerm + inventory)
-                || event.getWhoClicked().hasPermission(itemPerm + itemId + "." + inventory)){
+        if (itemId == null || event.getWhoClicked().hasPermission(Settings.Permissions.BYPASS_OPTION.replace("$option", inventory))
+                || event.getWhoClicked().hasPermission(Settings.Permissions.BYPASS_ITEM_ID_OPTION.replace("$id", String.valueOf(itemId))
+                .replace("$option", inventory))){
             return;
         }
 
         try{
             List<IOption> bans = BansStorage.getInstance().getCachedBans().get(item);
+            if (inventory.equalsIgnoreCase("crafting")){
+                if (event.getWhoClicked().getGameMode() != GameMode.CREATIVE){
+                    if (bans.contains(MoveOption.PLAYER_INVENTORY)){
+                        event.setCancelled(true);
+                    }
+                }
+            }
             if (bans.contains(Group.ALL) || bans.contains(IOption.getOrNull(inventory))) {
                 event.setCancelled(true);
             }
@@ -77,8 +84,9 @@ public class PlayerListener implements Listener {
         item.setAmount(1);
 
         Integer itemId = ItemsStorage.getInstance().getKey(item);
-        if (itemId == null || event.getPlayer().hasPermission(optionPerm + "place")
-                || event.getPlayer().hasPermission(itemPerm + itemId + ".place")){
+        if (itemId == null || event.getPlayer().hasPermission(Settings.Permissions.BYPASS_OPTION.replace("$option", "place"))
+                || event.getPlayer().hasPermission(Settings.Permissions.BYPASS_ITEM_ID_OPTION.replace("$id", String.valueOf(itemId))
+                .replace("$option", "place"))){
             return;
         }
 
@@ -96,8 +104,9 @@ public class PlayerListener implements Listener {
         item.setAmount(1);
 
         Integer itemId = ItemsStorage.getInstance().getKey(item);
-        if (itemId == null || event.getPlayer().hasPermission(optionPerm + "item_frame")
-                || event.getPlayer().hasPermission(itemPerm + itemId + ".item_frame")){
+        if (itemId == null || event.getPlayer().hasPermission(Settings.Permissions.BYPASS_OPTION.replace("$option", "item_frame"))
+                || event.getPlayer().hasPermission(Settings.Permissions.BYPASS_ITEM_ID_OPTION.replace("$id", String.valueOf(itemId))
+                .replace("$option", "item_frame"))){
             return;
         }
 
@@ -119,8 +128,9 @@ public class PlayerListener implements Listener {
                     if (!bans.contains(MoveOption.DIE)) continue;
 
                     Integer itemId = ItemsStorage.getInstance().getKey(itemStack);
-                    if (itemId == null || event.getEntity().hasPermission(optionPerm + "die")
-                            || event.getEntity().hasPermission(itemPerm + itemId + ".die")){
+                    if (itemId == null || event.getEntity().hasPermission(Settings.Permissions.BYPASS_OPTION.replace("$option", "id"))
+                            || event.getEntity().hasPermission(Settings.Permissions.BYPASS_ITEM_ID_OPTION.replace("$id", String.valueOf(itemId))
+                            .replace("$option", "die"))){
                         return;
                     }
 

@@ -1,21 +1,26 @@
 package me.rubix327.antiitemmove.menu;
 
+import me.rubix327.antiitemmove.Settings;
 import me.rubix327.antiitemmove.Util;
-import me.rubix327.antiitemmove.storage.*;
+import me.rubix327.antiitemmove.storage.Group;
+import me.rubix327.antiitemmove.storage.GroupsStorage;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.inventory.ItemStack;
+import org.mineacademy.fo.Common;
 import org.mineacademy.fo.menu.AdvancedMenu;
-import org.mineacademy.fo.menu.AdvancedMenuPagged;
 import org.mineacademy.fo.menu.button.Button;
 import org.mineacademy.fo.menu.model.ItemCreator;
 import org.mineacademy.fo.remain.CompMaterial;
 import org.mineacademy.fo.remain.CompSound;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.List;
 import java.util.stream.Collectors;
 
-public class GroupGroupsMenu extends AdvancedMenuPagged<Group> {
+public class GroupGroupsMenu extends MenuPaggedInterlayer<Group> {
 
     private final Group group;
     private List<Group> bannedGroups;
@@ -37,6 +42,7 @@ public class GroupGroupsMenu extends AdvancedMenuPagged<Group> {
 
     @Override
     protected void setup() {
+        Common.setTellPrefix(Settings.PREFIX);
         setTitle("Item Groups");
         setSize(54);
         setUnlockedSlots(11, 12, 13, 14, 15, 20, 21, 22, 23, 24);
@@ -173,6 +179,10 @@ public class GroupGroupsMenu extends AdvancedMenuPagged<Group> {
 
     @Override
     protected void onElementClick(Player player, Group object, int slot, ClickType clickType) {
+        if (!Util.hasPermissionMenu(player, Settings.Permissions.GUI_EDIT_GROUPS)) {
+            showNoPermission(slot);
+            return;
+        }
         if (!checkCanEdit()) return;
         Group group = Group.getOrNull(this.getElementsSlots().get(slot).toString());
         if (group == null) return;
@@ -195,7 +205,7 @@ public class GroupGroupsMenu extends AdvancedMenuPagged<Group> {
     protected boolean checkCanEdit(){
         if (!this.canEdit){
             CompSound.VILLAGER_NO.play(getPlayer(), 0.5F, 0.7F);
-            animateTitle("&4Can't edit predefined group!");
+            Common.tell(getPlayer(), "&cCan't edit predefined group!");
             return false;
         }
         return true;

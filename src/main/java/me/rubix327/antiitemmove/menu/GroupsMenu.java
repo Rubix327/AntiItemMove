@@ -5,7 +5,6 @@ import me.rubix327.antiitemmove.storage.Group;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.inventory.ItemStack;
-import org.mineacademy.fo.menu.AdvancedMenuPagged;
 import org.mineacademy.fo.menu.model.ItemCreator;
 import org.mineacademy.fo.remain.CompMaterial;
 
@@ -14,7 +13,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class GroupsMenu extends AdvancedMenuPagged<Group> {
+public class GroupsMenu extends MenuPaggedInterlayer<Group> {
     public GroupsMenu(Player player) {
         super(player);
     }

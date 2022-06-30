@@ -1,5 +1,6 @@
 package me.rubix327.antiitemmove.menu;
 
+import me.rubix327.antiitemmove.Settings;
 import me.rubix327.antiitemmove.Util;
 import me.rubix327.antiitemmove.storage.BansStorage;
 import me.rubix327.antiitemmove.storage.Group;
@@ -9,7 +10,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.inventory.ItemStack;
 import org.mineacademy.fo.menu.AdvancedMenu;
-import org.mineacademy.fo.menu.AdvancedMenuPagged;
 import org.mineacademy.fo.menu.button.Button;
 import org.mineacademy.fo.menu.model.ItemCreator;
 import org.mineacademy.fo.remain.CompMaterial;
@@ -21,12 +21,13 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class ItemGroupsMenu extends AdvancedMenuPagged<Group> {
+public class ItemGroupsMenu extends MenuPaggedInterlayer<Group> {
 
     private final int id;
     private final List<IOption> bannedOptions;
     private final ItemStack item;
     private boolean showDescription = false;
+    private final int itemButtonSlot = 49;
 
     public ItemGroupsMenu(Player player, int id) {
         super(player);
@@ -42,7 +43,7 @@ public class ItemGroupsMenu extends AdvancedMenuPagged<Group> {
         setUnlockedSlots(11, 12, 13, 14, 15, 20, 21, 22, 23, 24);
         addButton(45, getOptionsMenuButton());
         addButton(47, getShowDescriptionButton());
-        addButton(49, getItemButton());
+        addButton(itemButtonSlot, getItemButton());
         addButton(53, getSaveExitButton());
     }
 
@@ -88,6 +89,10 @@ public class ItemGroupsMenu extends AdvancedMenuPagged<Group> {
                 if (clickType == ClickType.LEFT){
                     getPlayer().getInventory().addItem(item);
                 } else if (clickType == ClickType.RIGHT){
+                    if (!Util.hasPermissionMenu(player, Settings.Permissions.REMOVE)){
+                        showNoPermission(itemButtonSlot);
+                        return;
+                    }
                     new RemoveItemConfirmMenu(player, id).display();
                 }
             }
@@ -161,6 +166,10 @@ public class ItemGroupsMenu extends AdvancedMenuPagged<Group> {
 
     @Override
     protected void onElementClick(Player player, Group object, int slot, ClickType clickType) {
+        if (!Util.hasPermissionMenu(player, Settings.Permissions.GUI_EDIT_ITEMS)) {
+            showNoPermission(slot);
+            return;
+        }
         IOption option = this.getElementsSlots().get(slot);
         if (bannedOptions.contains(option)){
             BansStorage.getInstance().removeOptions(id, option);

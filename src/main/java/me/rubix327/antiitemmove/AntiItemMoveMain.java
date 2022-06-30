@@ -22,7 +22,8 @@ public class AntiItemMoveMain extends SimplePlugin {
 
         SimpleSettings.HIDE_INCOMPATIBILITY_WARNINGS = true;
         SimpleSettings.HIDE_NASHORN_WARNINGS = true;
-        Common.setLogPrefix("[AntiItemMove]");
+        Common.setLogPrefix("[AntiItemMove] ");
+        Common.setTellPrefix(Settings.PREFIX);
         registerCommand(new Commands());
         registerEvents(new PlayerListener());
         loadFiles();
@@ -37,5 +38,10 @@ public class AntiItemMoveMain extends SimplePlugin {
         ItemsStorage.getInstance().init();
         BansStorage.getInstance().init();
         GroupsStorage.getInstance().init();
+    }
+
+    @Override
+    public int getMetricsPluginId() {
+        return 15634;
     }
 }

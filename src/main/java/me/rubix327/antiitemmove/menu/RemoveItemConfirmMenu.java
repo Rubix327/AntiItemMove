@@ -1,5 +1,7 @@
 package me.rubix327.antiitemmove.menu;
 
+import me.rubix327.antiitemmove.Settings;
+import me.rubix327.antiitemmove.Util;
 import me.rubix327.antiitemmove.storage.BansStorage;
 import me.rubix327.antiitemmove.storage.ItemsStorage;
 import org.bukkit.entity.Player;
@@ -12,7 +14,7 @@ import org.mineacademy.fo.menu.model.ItemCreator;
 import org.mineacademy.fo.remain.CompMaterial;
 import org.mineacademy.fo.remain.CompSound;
 
-public class RemoveItemConfirmMenu extends AdvancedMenu {
+public class RemoveItemConfirmMenu extends MenuInterlayer {
 
     private final int id;
 
@@ -34,6 +36,7 @@ public class RemoveItemConfirmMenu extends AdvancedMenu {
         return new Button() {
             @Override
             public void onClickedInMenu(Player player, AdvancedMenu advancedMenu, ClickType clickType) {
+                if (!Util.hasPermissionMenu(player, Settings.Permissions.REMOVE)) return;
                 ItemsStorage.getInstance().remove(id);
                 BansStorage.getInstance().remove(id);
                 CompSound.NOTE_PLING.play(player, 0.5F, 0.6F);

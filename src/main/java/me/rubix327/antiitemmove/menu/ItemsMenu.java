@@ -5,7 +5,6 @@ import me.rubix327.antiitemmove.storage.ItemsStorage;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.inventory.ItemStack;
-import org.mineacademy.fo.menu.AdvancedMenuPagged;
 import org.mineacademy.fo.menu.LockedSlotsFigure;
 import org.mineacademy.fo.menu.model.ItemCreator;
 import org.mineacademy.fo.remain.CompMaterial;
@@ -15,7 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class ItemsMenu extends AdvancedMenuPagged<IDItemStack> {
+public class ItemsMenu extends MenuPaggedInterlayer<IDItemStack> {
 
     private final ItemStack invalidItem = ItemCreator.of(CompMaterial.BARRIER).name("&cThis item is failed to be decoded.").make();
 
