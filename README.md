@@ -4,20 +4,17 @@ This plugin forbids players to move specified items (vanilla and custom) in any 
 #### NOTE that if you are OPped, restrictions will not apply to you because you will have all bypass permissions! To test the restricted item please deop yourself first!
 
 ## Showcase
-### Work demonstration:
 
-![Showcase](https://drive.google.com/u/0/uc?id=18aW8wgBPvNImHrWRJCqeKiMX3eycW-Lo&export=download)
-
-### Convinient Easy To Use GUI:
+### Convinient Easy To Use GUI
 ![Restricted Items](https://drive.google.com/u/0/uc?id=1gtUc0snJJcjmpaGTF0qhqfMuvEBke-BH)
 
-### 28 Different Options:
+### 28 Different Options
 ![Item Options](https://drive.google.com/u/0/uc?id=176Ok2E2g7SWZ140pF3Xz3LrCcCCNQUTi)
 
 ### Pre Created Groups
 ![a](https://drive.google.com/u/0/uc?id=1IF__5v5Pc9tNWTQt24UXe-S1yIJHuMxb)
 
-## Available options:
+## Available options
 You can add these options to an item. Not case-sensitive.
 <details>
   <summary>Click me</summary>
@@ -80,7 +77,7 @@ You can customize all of these groups as you want. Not case-sensitive.
 
 </details>
 
-## Commands (& permissions):
+## Commands (& permissions)
 
 - /aim [gui] - Open the plugin’s GUI (`antiitemmove.gui`)
     - `antiitemmove.gui.open.main` - Open the main menu
@@ -94,7 +91,7 @@ You can customize all of these groups as you want. Not case-sensitive.
 - /aim help - Open help page (`antiitemmove.help`)
 - /aim reload - Reload the plugin (`antiitemmove.reload`)
 
-## Other permissions (all defaults to op):
+## Other permissions (all defaults to op)
 
 - `antiitemmove.bypass.*` - bypass all the restrictions
 - `antiitemmove.bypass.item.<id>.<option>` - bypass restrictions for item with id <id> for the selected <option>
@@ -105,6 +102,6 @@ You can customize all of these groups as you want. Not case-sensitive.
 - `antiitemmove.syntax` - Show syntax if the entered command is incorrect
 - `antiitemmove.*` - All permissions at once
 
-## Dependencies:
+## Dependencies
 
 We have only one soft-dependency - [ItemsLangAPI](https://www.spigotmc.org/resources/itemslangapi.102979/) - to format item names. Really not necessary.
